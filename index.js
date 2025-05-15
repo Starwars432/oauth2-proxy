@@ -1,3 +1,4 @@
+// index.js
 const express = require('express');
 const axios = require('axios');
 const dotenv = require('dotenv');
@@ -8,7 +9,7 @@ dotenv.config();
 const app = express();
 app.use(cors());
 
-// Decap CMS hits this route: /api/auth?provider=github&scope=repo
+// Endpoint that Decap CMS hits to start GitHub OAuth flow
 app.get('/api/auth', (req, res) => {
   const { provider, scope } = req.query;
 
@@ -17,11 +18,10 @@ app.get('/api/auth', (req, res) => {
   }
 
   const redirectUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URL}&scope=${scope || 'repo'}`;
-
   res.redirect(redirectUrl);
 });
 
-// GitHub redirects here with a temporary code after user auths
+// GitHub sends the code to this callback URL after user authorization
 app.get('/api/auth/callback', async (req, res) => {
   const code = req.query.code;
 
@@ -45,8 +45,8 @@ app.get('/api/auth/callback', async (req, res) => {
 
     const accessToken = response.data.access_token;
 
-    // ✅ Redirect back to your MAIN website domain, NOT the proxy
-    const returnUrl = `https://manifestillusions.com/vos?token=${accessToken}`;
+    // Redirect back to your main site with the token
+    const returnUrl = `https://${process.env.MAIN_DOMAIN}/vos?token=${accessToken}`;
     res.redirect(returnUrl);
   } catch (error) {
     console.error('OAuth error:', error.response?.data || error.message);
