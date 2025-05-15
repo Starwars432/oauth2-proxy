@@ -1,4 +1,3 @@
-// server.js or index.js
 const express = require('express');
 const axios = require('axios');
 const dotenv = require('dotenv');
@@ -46,8 +45,8 @@ app.get('/api/auth/callback', async (req, res) => {
 
     const accessToken = response.data.access_token;
 
-    // Final redirect back to Decap CMS admin (/vos)
-    const returnUrl = `https://${process.env.BASE_URL.replace(/^https?:\/\//, '')}/vos?token=${accessToken}`;
+    // ✅ Redirect back to your MAIN website domain, NOT the proxy
+    const returnUrl = `https://manifestillusions.com/vos?token=${accessToken}`;
     res.redirect(returnUrl);
   } catch (error) {
     console.error('OAuth error:', error.response?.data || error.message);
